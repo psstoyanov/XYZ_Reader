@@ -44,12 +44,20 @@ public class ArticleListActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article_list);
 
+        // Set the toolbar logo.
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar.setLogo(R.drawable.logo);
 
 
-        final View toolbarContainerView = findViewById(R.id.toolbar_container);
+        //final View toolbarContainerView = findViewById(R.id.toolbar_container);
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refresh();
+            }
+        });
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         getLoaderManager().initLoader(0, null, this);
@@ -62,6 +70,7 @@ public class ArticleListActivity extends AppCompatActivity implements
     private void refresh() {
         startService(new Intent(this, UpdaterService.class));
     }
+
 
     @Override
     protected void onStart() {

@@ -2,7 +2,7 @@
 <resources>
 
 
-    <style name="BaseAppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="BaseAppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/color_primary</item>
         <item name="colorAccent">@color/color_accent</item>
         <item name="android:statusBarColor">@color/color_primary_dark</item>
