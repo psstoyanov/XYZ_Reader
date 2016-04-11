@@ -94,12 +94,23 @@ public class ArticleDetailFragment extends Fragment implements
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.fragment_article_detail_coordinator, container, false);
 
 
         mToolbar = (Toolbar) mRootView.findViewById(R.id.toolbar);
 
+
+        // Add the AppCompatActivity code for ActionBar.
+        // More specifically- up navigation.
+        // The fragment will rely on the activity to use the AppBar functions.
+        // However there is no Toolbar on the Activity xml, thus we pass the Activity
+        // functions to the fragment with ((AppCompatActivity) getActivity()) on onCreateView
+        ((AppCompatActivity) getActivity()).setSupportActionBar(mToolbar);
+        if(getActionBar() != null)
+        {
+            getActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         mPhotoView = (ImageView) mRootView.findViewById(R.id.photo);
 
@@ -119,6 +130,9 @@ public class ArticleDetailFragment extends Fragment implements
         return mRootView;
     }
 
+    private ActionBar getActionBar() {
+        return ((AppCompatActivity) getActivity()).getSupportActionBar();
+    }
 
     private void bindViews() {
         if (mRootView == null) {
@@ -152,7 +166,7 @@ public class ArticleDetailFragment extends Fragment implements
         } else {
             mRootView.setVisibility(View.GONE);
             titleView.setText("N/A");
-            bylineView.setText("N/A" );
+            bylineView.setText("N/A");
             bodyView.setText("N/A");
         }
     }

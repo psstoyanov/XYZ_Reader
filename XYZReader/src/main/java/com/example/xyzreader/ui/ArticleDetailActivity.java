@@ -47,8 +47,6 @@ public class ArticleDetailActivity extends AppCompatActivity
         mPager = (ViewPager) findViewById(R.id.pager);
         mPager.setAdapter(mPagerAdapter);
 
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
-
 
 
         if (savedInstanceState == null) {
