@@ -46,7 +46,8 @@ public class RecyclerListArticleAdapter extends RecyclerView.Adapter
         @Override
         public void onClick(View v) {
 
-            int adapterPosition = getAdapterPosition();
+            // We aren't going to override the getItemID.
+            // Instead a custom method to get the Query.ID
             mContext.startActivity(new Intent(Intent.ACTION_VIEW,
                     ItemsContract.Items.buildItemUri(getId(getAdapterPosition()))));
         }
