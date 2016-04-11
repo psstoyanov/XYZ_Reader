@@ -29,8 +29,6 @@ public class ArticleDetailActivity extends AppCompatActivity
     private long mStartId;
 
     private long mSelectedItemId;
-    private int mSelectedItemUpButtonFloor = Integer.MAX_VALUE;
-    private Toolbar mToolbar;
 
     private ViewPager mPager;
     private MyPagerAdapter mPagerAdapter;
@@ -59,8 +57,6 @@ public class ArticleDetailActivity extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem menuItem) {
-        if (menuItem.getItemId() == android.R.id.home) {
-        }
         return super.onOptionsItemSelected(menuItem);
     }
 

@@ -45,11 +45,18 @@ public class RecyclerListArticleAdapter extends RecyclerView.Adapter
 
         @Override
         public void onClick(View v) {
-            Log.d("Adapter","Click");
+
             int adapterPosition = getAdapterPosition();
             mContext.startActivity(new Intent(Intent.ACTION_VIEW,
-                    ItemsContract.Items.buildItemUri(adapterPosition)));
+                    ItemsContract.Items.buildItemUri(getId(getAdapterPosition()))));
         }
+    }
+
+
+    public long getId(int position)
+    {
+        mCursor.moveToPosition(position);
+        return mCursor.getLong(ArticleLoader.Query._ID);
     }
 
     public RecyclerListArticleAdapter(Activity context)
@@ -71,6 +78,7 @@ public class RecyclerListArticleAdapter extends RecyclerView.Adapter
             throw new RuntimeException("Not bound to RecyclerViewSelection");
 
         }
+
     }
 
     @Override

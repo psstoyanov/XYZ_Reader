@@ -90,13 +90,6 @@ public class ArticleDetailFragment extends Fragment implements
         // we do this in onActivityCreated.
         getLoaderManager().initLoader(0, null, this);
         setHasOptionsMenu(true);
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        mRootView = inflater.inflate(R.layout.fragment_article_detail_coordinator, container, false);
-
 
         mToolbar = (Toolbar) mRootView.findViewById(R.id.toolbar);
 
@@ -107,10 +100,19 @@ public class ArticleDetailFragment extends Fragment implements
         // However there is no Toolbar on the Activity xml, thus we pass the Activity
         // functions to the fragment with ((AppCompatActivity) getActivity()) on onCreateView
         ((AppCompatActivity) getActivity()).setSupportActionBar(mToolbar);
-        if(getActionBar() != null)
+        if(((AppCompatActivity) getActivity()).getSupportActionBar() != null)
         {
             getActionBar().setDisplayHomeAsUpEnabled(true);
         }
+
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        mRootView = inflater.inflate(R.layout.fragment_article_detail_coordinator, container, false);
+
+
 
         mPhotoView = (ImageView) mRootView.findViewById(R.id.photo);
 
