@@ -77,10 +77,12 @@ public class ArticleDetailActivity extends AppCompatActivity
         mPagerAdapter.notifyDataSetChanged();
 
         // Select the start ID
-        if (mStartId > 0) {
+        if (mStartId > 0)
+        {
             mCursor.moveToFirst();
             // TODO: optimize
-            while (!mCursor.isAfterLast()) {
+            while (!mCursor.isAfterLast())
+            {
                 if (mCursor.getLong(ArticleLoader.Query._ID) == mStartId) {
                     final int position = mCursor.getPosition();
                     mPager.setCurrentItem(position, false);

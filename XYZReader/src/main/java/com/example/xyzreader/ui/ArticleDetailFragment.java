@@ -146,7 +146,8 @@ public class ArticleDetailFragment extends Fragment implements
             bodyView.setText(Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY)));
 
 
-            Picasso.with(getActivity()).load(mCursor.getString(ArticleLoader.Query.PHOTO_URL)).into(mPhotoView);
+            Picasso.with(getActivity()).load(mCursor.getString(ArticleLoader.Query.PHOTO_URL))
+                    .into(mPhotoView);
 
         } else {
             mRootView.setVisibility(View.GONE);

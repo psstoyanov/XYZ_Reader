@@ -1,9 +1,11 @@
 package com.example.xyzreader.adapters;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +13,8 @@ import android.widget.TextView;
 
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
-import com.example.xyzreader.ui.DynamicHeightImageView;
+import com.example.xyzreader.data.ItemsContract;
+import com.example.xyzreader.util.DynamicHeightImageView;
 import com.squareup.picasso.Picasso;
 
 /**
@@ -26,8 +29,8 @@ public class RecyclerListArticleAdapter extends RecyclerView.Adapter
 
 
 
-    public class ArticlesViewHolder extends RecyclerView.ViewHolder
-    {
+
+    public class ArticlesViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public DynamicHeightImageView thumbnailView;
         public TextView titleView;
         public TextView subtitleView;
@@ -37,6 +40,15 @@ public class RecyclerListArticleAdapter extends RecyclerView.Adapter
             thumbnailView = (DynamicHeightImageView) view.findViewById(R.id.thumbnail);
             titleView = (TextView) view.findViewById(R.id.article_title);
             subtitleView = (TextView) view.findViewById(R.id.article_subtitle);
+            view.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            Log.d("Adapter","Click");
+            int adapterPosition = getAdapterPosition();
+            mContext.startActivity(new Intent(Intent.ACTION_VIEW,
+                    ItemsContract.Items.buildItemUri(adapterPosition)));
         }
     }
 
@@ -72,15 +84,13 @@ public class RecyclerListArticleAdapter extends RecyclerView.Adapter
                         DateUtils.FORMAT_ABBREV_ALL).toString()
                         + " by "
                         + mCursor.getString(ArticleLoader.Query.AUTHOR));
-        //holder.thumbnailView.setImageUrl(mCursor.getString(ArticleLoader.Query.THUMB_URL),
-        //        ImageLoaderHelper.getInstance(mContext).getImageLoader());
 
-
-        Picasso.with(holder.thumbnailView.getContext()).
+        Picasso mPicasso = Picasso.with(mContext);
+        mPicasso.with(mContext).cancelRequest(holder.thumbnailView);
+        mPicasso.with(mContext).
                 load(mCursor.getString(ArticleLoader.Query.THUMB_URL))
                 .placeholder(R.drawable.photo_background_protection)
                 .into(holder.thumbnailView);
-
 
         holder.thumbnailView.setAspectRatio(mCursor.getFloat(ArticleLoader.Query.ASPECT_RATIO));
 

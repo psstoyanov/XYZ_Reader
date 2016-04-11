@@ -123,9 +123,7 @@ public class ArticleListActivity extends AppCompatActivity implements
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor)
     {
         mRecyclerListArticleAdapter.swapCursor(cursor);
-
     }
-
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mRecyclerView.setAdapter(null);
