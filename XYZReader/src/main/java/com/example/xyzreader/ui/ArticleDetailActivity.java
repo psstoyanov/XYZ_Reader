@@ -5,15 +5,11 @@ import android.app.FragmentManager;
 import android.app.LoaderManager;
 import android.content.Loader;
 import android.database.Cursor;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v13.app.FragmentStatePagerAdapter;
-import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.TypedValue;
-import android.view.MenuItem;
 import android.view.ViewGroup;
 
 import com.example.xyzreader.R;
@@ -34,6 +30,8 @@ public class ArticleDetailActivity extends AppCompatActivity
     private ViewPager mPager;
     private MyPagerAdapter mPagerAdapter;
 
+    private Toolbar mToolbar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,6 +44,13 @@ public class ArticleDetailActivity extends AppCompatActivity
         mPager = (ViewPager) findViewById(R.id.pager);
         mPager.setAdapter(mPagerAdapter);
 
+        mToolbar = (Toolbar) this.findViewById(R.id.toolbar);
+        if (mToolbar != null) {
+            setSupportActionBar(mToolbar);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
 
 
         if (savedInstanceState == null) {
@@ -56,20 +61,11 @@ public class ArticleDetailActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            // Respond to the action bar's Up/Home button
-            case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
+
+
     @Override
     public void onBackPressed() {
-            super.onBackPressed();
-
+        super.onBackPressed();
     }
 
     @Override
@@ -83,12 +79,10 @@ public class ArticleDetailActivity extends AppCompatActivity
         mPagerAdapter.notifyDataSetChanged();
 
         // Select the start ID
-        if (mStartId > 0)
-        {
+        if (mStartId > 0) {
             mCursor.moveToFirst();
             // TODO: optimize
-            while (!mCursor.isAfterLast())
-            {
+            while (!mCursor.isAfterLast()) {
                 if (mCursor.getLong(ArticleLoader.Query._ID) == mStartId) {
                     final int position = mCursor.getPosition();
                     mPager.setCurrentItem(position, false);
@@ -129,4 +123,7 @@ public class ArticleDetailActivity extends AppCompatActivity
             return (mCursor != null) ? mCursor.getCount() : 0;
         }
     }
+
+
+
 }
