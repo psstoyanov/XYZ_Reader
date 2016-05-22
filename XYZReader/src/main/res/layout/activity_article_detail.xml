@@ -1,6 +1,29 @@
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/draw_insets_frame_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
 <android.support.v4.view.ViewPager xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/pager"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+    android:layout_height="match_parent"/>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/share_fab"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="@dimen/fab_margin"
+        android:layout_marginRight="@dimen/fab_margin"
+        android:contentDescription="@string/action_share"
+        android:elevation="6dp"
+        android:src="@drawable/ic_share"
+        android:stateListAnimator="@drawable/fab_state_list_anim"
+        app:layout_behavior="com.example.xyzreader.util.ScrollAwareFABBehavior" />
+
+    <include layout="@layout/app_bar_article" />
+
+</android.support.design.widget.CoordinatorLayout>

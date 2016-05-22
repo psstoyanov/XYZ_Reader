@@ -7,7 +7,6 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ShareCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -16,14 +15,13 @@ import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
+import com.example.xyzreader.util.DynamicHeightImageView;
 import com.squareup.picasso.Picasso;
 
 
@@ -41,7 +39,7 @@ public class ArticleDetailFragment extends Fragment implements
     private Cursor mCursor;
     private long mItemId;
     private View mRootView;
-    private ImageView mPhotoView;
+    private DynamicHeightImageView mPhotoView;
     private boolean mIsCard = false;
     private Toolbar mToolbar;
 
@@ -86,7 +84,7 @@ public class ArticleDetailFragment extends Fragment implements
         getLoaderManager().initLoader(0, null, this);
         setHasOptionsMenu(true);
 
-        mToolbar = (Toolbar) mRootView.findViewById(R.id.toolbar);
+        //mToolbar = (Toolbar) mRootView.findViewById(R.id.toolbar);
 
 
         // Add the AppCompatActivity code for ActionBar.
@@ -106,25 +104,12 @@ public class ArticleDetailFragment extends Fragment implements
         // as well as up<-> down directly directly, this solution seems to work best.
         // If the toolbar is added in the same layout as the ViewPager, then the
         // expanded toolbar can't be swiped left<->right.
-        mToolbar.setNavigationIcon(ContextCompat.getDrawable(getActivity(),R.drawable.ic_arrow_back));
-        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getActivity().onBackPressed();
-            }
-        });
+        //mToolbar.setNavigationIcon(ContextCompat.getDrawable(getActivity(),R.drawable.ic_arrow_back));
+
 
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                getActivity().onBackPressed();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -134,10 +119,10 @@ public class ArticleDetailFragment extends Fragment implements
 
 
 
-        mPhotoView = (ImageView) mRootView.findViewById(R.id.photo);
+        mPhotoView = (DynamicHeightImageView) mRootView.findViewById(R.id.photo);
 
 
-        mRootView.findViewById(R.id.share_fab).setOnClickListener(new View.OnClickListener() {
+        getActivity().findViewById(R.id.share_fab).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(Intent.createChooser(ShareCompat.IntentBuilder.from(getActivity())
@@ -170,7 +155,6 @@ public class ArticleDetailFragment extends Fragment implements
             mRootView.setVisibility(View.VISIBLE);
             mRootView.animate().alpha(1);
             titleView.setText(mCursor.getString(ArticleLoader.Query.TITLE));
-            mToolbar.setTitle(mCursor.getString(ArticleLoader.Query.TITLE));
 
             //Add url links to the HTML style of text for the body.
             // sample- http://jtomlinson.blogspot.co.uk/2010/03/textview-and-html.html
@@ -180,7 +164,7 @@ public class ArticleDetailFragment extends Fragment implements
                             mCursor.getLong(ArticleLoader.Query.PUBLISHED_DATE),
                             System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS,
                             DateUtils.FORMAT_ABBREV_ALL).toString()
-                            + " by <font color='#ffffff'>"
+                            + " by <font color='#000000'>"
                             + mCursor.getString(ArticleLoader.Query.AUTHOR)
                             + "</font>"));
             bodyView.setText(Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY)));
@@ -188,6 +172,9 @@ public class ArticleDetailFragment extends Fragment implements
 
             Picasso.with(getActivity()).load(mCursor.getString(ArticleLoader.Query.PHOTO_URL))
                     .into(mPhotoView);
+
+            mPhotoView.setAspectRatio(mCursor.getFloat(ArticleLoader.Query.ASPECT_RATIO));
+
 
         } else {
             mRootView.setVisibility(View.GONE);
