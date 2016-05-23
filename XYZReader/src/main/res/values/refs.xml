@@ -12,5 +12,5 @@
      limitations under the License.
  -->
 <resources>
-    <!-- Preparing for other layout. It makes it easier to setup layouts with references. -->
+    <item type="layout" name="fragment_detail_start">@layout/fragment_detail</item>
 </resources>

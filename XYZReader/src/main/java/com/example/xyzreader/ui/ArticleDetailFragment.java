@@ -115,7 +115,7 @@ public class ArticleDetailFragment extends Fragment implements
                              Bundle savedInstanceState) {
 
 
-        mRootView = inflater.inflate(R.layout.fragment_article_detail_coordinator, container, false);
+        mRootView = inflater.inflate(R.layout.fragment_detail_start, container, false);
 
 
 

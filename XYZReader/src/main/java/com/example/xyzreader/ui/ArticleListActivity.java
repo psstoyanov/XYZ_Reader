@@ -14,15 +14,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
-import android.text.format.DateUtils;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.example.xyzreader.R;
 import com.example.xyzreader.adapters.RecyclerListArticleAdapter;
 import com.example.xyzreader.data.ArticleLoader;
-import com.example.xyzreader.data.ItemsContract;
 import com.example.xyzreader.data.UpdaterService;
 
 /**
@@ -38,7 +33,8 @@ public class ArticleListActivity extends AppCompatActivity implements
     private SwipeRefreshLayout mSwipeRefreshLayout;
     public RecyclerListArticleAdapter mRecyclerListArticleAdapter;
     private RecyclerView mRecyclerView;
-    protected Activity mActivity;
+    private Activity mActivity;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +77,17 @@ public class ArticleListActivity extends AppCompatActivity implements
     }
 
     private void refresh() {
-        startService(new Intent(this, UpdaterService.class));
+
+        // Moved the update service to a separate thread
+        // so that it will not clash with the UI thread inside the ArticleListActivity.
+        final Intent mIntent = new Intent(mActivity, UpdaterService.class);
+        Thread t = new Thread() {
+            public void run() {
+
+                mActivity.startService(mIntent);
+            }
+        };
+        t.start();
     }
 
 
@@ -120,10 +126,10 @@ public class ArticleListActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor)
-    {
+    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
         mRecyclerListArticleAdapter.swapCursor(cursor);
     }
+
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mRecyclerView.setAdapter(null);
