@@ -1,10 +1,8 @@
-package com.example.xyzreader.util;
+package com.example.xyzreader.uiutil;
 
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.ImageView;
-
-import com.android.volley.toolbox.NetworkImageView;
 
 
 /* Changed to extend from ImageView instead of NetworkImageView. */

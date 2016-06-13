@@ -16,13 +16,13 @@
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_gravity="bottom|end"
-        android:layout_marginBottom="@dimen/fab_margin"
-        android:layout_marginRight="@dimen/fab_margin"
+        android:layout_marginBottom="@dimen/fab_margin_bottom"
+        android:layout_marginRight="@dimen/fab_margin_right"
         android:contentDescription="@string/action_share"
         android:elevation="6dp"
         android:src="@drawable/ic_share"
         android:stateListAnimator="@drawable/fab_state_list_anim"
-        app:layout_behavior="com.example.xyzreader.util.ScrollAwareFABBehavior" />
+        app:layout_behavior="com.example.xyzreader.uiutil.ScrollAwareFABBehavior" />
 
     <include layout="@layout/app_bar_article" />
 

@@ -1,6 +1,7 @@
 package com.example.xyzreader.adapters;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
@@ -13,7 +14,8 @@ import android.widget.TextView;
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
 import com.example.xyzreader.data.ItemsContract;
-import com.example.xyzreader.util.DynamicHeightImageView;
+import com.example.xyzreader.ui.ArticleListActivity;
+import com.example.xyzreader.uiutil.DynamicHeightImageView;
 import com.squareup.picasso.Picasso;
 
 /**
@@ -24,6 +26,7 @@ public class RecyclerListArticleAdapter extends RecyclerView.Adapter
 {
 
     private Cursor mCursor;
+    private int mActivePosition;
     private Activity mContext;
 
 
@@ -47,8 +50,21 @@ public class RecyclerListArticleAdapter extends RecyclerView.Adapter
 
             // We aren't going to override the getItemID.
             // Instead a custom method to get the Query.ID
-            mContext.startActivity(new Intent(Intent.ACTION_VIEW,
+            //mContext.startActivity(new Intent(Intent.ACTION_VIEW,
+            //        ItemsContract.Items.buildItemUri(getId(getAdapterPosition()))));
+
+
+            // TODO: is there a way to prevent user from double clicking and starting activity twice?
+            Intent intent = (new Intent(Intent.ACTION_VIEW,
                     ItemsContract.Items.buildItemUri(getId(getAdapterPosition()))));
+            intent.putExtra(ArticleListActivity.EXTRA_STARTING_ALBUM_POSITION, ItemsContract.Items.buildItemUri(getId(getAdapterPosition())));
+
+            if (!ArticleListActivity.GetmIsDetailsActivityStarted()) {
+                ArticleListActivity.SetmIsDetailsActivityStarted(true);
+                mContext.startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(mContext,
+                        thumbnailView, thumbnailView.getTransitionName()).toBundle());
+            }
+
         }
     }
 
@@ -58,6 +74,8 @@ public class RecyclerListArticleAdapter extends RecyclerView.Adapter
         mCursor.moveToPosition(position);
         return mCursor.getLong(ArticleLoader.Query._ID);
     }
+
+
 
     public RecyclerListArticleAdapter(Activity context)
     {
@@ -99,6 +117,8 @@ public class RecyclerListArticleAdapter extends RecyclerView.Adapter
                 load(mCursor.getString(ArticleLoader.Query.THUMB_URL))
                 .placeholder(R.drawable.photo_background_protection)
                 .into(holder.thumbnailView);
+        holder.thumbnailView.setTransitionName(String.valueOf(mCursor.getPosition()));
+        holder.thumbnailView.setTag(String.valueOf(mCursor.getPosition()));
 
         holder.thumbnailView.setAspectRatio(mCursor.getFloat(ArticleLoader.Query.ASPECT_RATIO));
 

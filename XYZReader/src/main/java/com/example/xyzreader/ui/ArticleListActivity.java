@@ -2,6 +2,7 @@ package com.example.xyzreader.ui;
 
 import android.app.Activity;
 import android.app.LoaderManager;
+import android.app.SharedElementCallback;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -14,11 +15,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
+import android.view.ViewTreeObserver;
 
 import com.example.xyzreader.R;
 import com.example.xyzreader.adapters.RecyclerListArticleAdapter;
 import com.example.xyzreader.data.ArticleLoader;
-import com.example.xyzreader.data.UpdaterService;
+import com.example.xyzreader.sync.XYZReaderSyncAdapter;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * An activity representing a list of Articles. This activity has different presentations for
@@ -33,7 +39,12 @@ public class ArticleListActivity extends AppCompatActivity implements
     private SwipeRefreshLayout mSwipeRefreshLayout;
     public RecyclerListArticleAdapter mRecyclerListArticleAdapter;
     private RecyclerView mRecyclerView;
+    private Bundle mTmpReenterState;
+    private static boolean mIsDetailsActivityStarted;
     private Activity mActivity;
+
+    public static final String EXTRA_STARTING_ALBUM_POSITION = "extra_starting_item_position";
+    static final String EXTRA_CURRENT_ALBUM_POSITION = "extra_current_item_position";
 
 
     @Override
@@ -68,26 +79,80 @@ public class ArticleListActivity extends AppCompatActivity implements
         mRecyclerView.setAdapter(mRecyclerListArticleAdapter);
 
 
+
         getLoaderManager().initLoader(0, null, this);
+        XYZReaderSyncAdapter.initializeSyncAdapter(this);
 
-
-        if (savedInstanceState == null) {
-            refresh();
+        if (savedInstanceState == null)
+        {
+            XYZReaderSyncAdapter.syncImmediately(this);
         }
     }
 
     private void refresh() {
+        XYZReaderSyncAdapter.syncImmediately(mActivity);
+    }
 
-        // Moved the update service to a separate thread
-        // so that it will not clash with the UI thread inside the ArticleListActivity.
-        final Intent mIntent = new Intent(mActivity, UpdaterService.class);
-        Thread t = new Thread() {
-            public void run() {
+    private final SharedElementCallback mCallback = new SharedElementCallback() {
+        @Override
+        public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
+            if (mTmpReenterState != null) {
+                int startingPosition = mTmpReenterState.getInt(EXTRA_STARTING_ALBUM_POSITION);
+                int currentPosition = mTmpReenterState.getInt(EXTRA_CURRENT_ALBUM_POSITION);
+                if (startingPosition != currentPosition) {
+                    // If startingPosition != currentPosition the user must have swiped to a
+                    // different page in the DetailsActivity. We must update the shared element
+                    // so that the correct one falls into place.
 
-                mActivity.startService(mIntent);
+
+                    String newTransitionName = String.valueOf(currentPosition);
+                    View newSharedElement = mRecyclerView.findViewWithTag(newTransitionName);
+                    if (newSharedElement != null)
+                    {
+                        names.clear();
+                        names.add(newTransitionName);
+                        sharedElements.clear();
+                        sharedElements.put(newTransitionName, newSharedElement);
+                    }
+                }
+
+                mTmpReenterState = null;
+            } else {
+                // If mTmpReenterState is null, then the activity is exiting.
+                View navigationBar = findViewById(android.R.id.navigationBarBackground);
+                View statusBar = findViewById(android.R.id.statusBarBackground);
+                if (navigationBar != null) {
+                    names.add(navigationBar.getTransitionName());
+                    sharedElements.put(navigationBar.getTransitionName(), navigationBar);
+                }
+                if (statusBar != null) {
+                    names.add(statusBar.getTransitionName());
+                    sharedElements.put(statusBar.getTransitionName(), statusBar);
+                }
             }
-        };
-        t.start();
+        }
+    };
+
+    @Override
+    public void onActivityReenter(int requestCode, Intent data) {
+        super.onActivityReenter(requestCode, data);
+        mTmpReenterState = new Bundle(data.getExtras());
+        int startingPosition = mTmpReenterState.getInt(EXTRA_STARTING_ALBUM_POSITION);
+        int currentPosition = mTmpReenterState.getInt(EXTRA_CURRENT_ALBUM_POSITION);
+        if (startingPosition != currentPosition) {
+            mRecyclerView.scrollToPosition(currentPosition);
+        }
+        postponeEnterTransition();
+        mRecyclerView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                mRecyclerView.getViewTreeObserver().removeOnPreDrawListener(this);
+                // TODO: figure out why it is necessary to request layout here in order to get a smooth transition.
+                mRecyclerView.requestLayout();
+                startPostponedEnterTransition();
+                return true;
+            }
+        });
     }
 
 
@@ -95,7 +160,7 @@ public class ArticleListActivity extends AppCompatActivity implements
     protected void onStart() {
         super.onStart();
         registerReceiver(mRefreshingReceiver,
-                new IntentFilter(UpdaterService.BROADCAST_ACTION_STATE_CHANGE));
+                new IntentFilter(XYZReaderSyncAdapter.BROADCAST_ACTION_STATE_CHANGE));
     }
 
     @Override
@@ -104,13 +169,19 @@ public class ArticleListActivity extends AppCompatActivity implements
         unregisterReceiver(mRefreshingReceiver);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mIsDetailsActivityStarted = false;
+    }
+
     private boolean mIsRefreshing = false;
 
     private BroadcastReceiver mRefreshingReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (UpdaterService.BROADCAST_ACTION_STATE_CHANGE.equals(intent.getAction())) {
-                mIsRefreshing = intent.getBooleanExtra(UpdaterService.EXTRA_REFRESHING, false);
+            if (XYZReaderSyncAdapter.BROADCAST_ACTION_STATE_CHANGE.equals(intent.getAction())) {
+                mIsRefreshing = intent.getBooleanExtra(XYZReaderSyncAdapter.EXTRA_REFRESHING, false);
                 updateRefreshingUI();
             }
         }
@@ -133,6 +204,16 @@ public class ArticleListActivity extends AppCompatActivity implements
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mRecyclerView.setAdapter(null);
+    }
+
+    public static boolean GetmIsDetailsActivityStarted()
+    {
+        return mIsDetailsActivityStarted;
+    }
+
+    public static void SetmIsDetailsActivityStarted(boolean started)
+    {
+        mIsDetailsActivityStarted = started;
     }
 
 

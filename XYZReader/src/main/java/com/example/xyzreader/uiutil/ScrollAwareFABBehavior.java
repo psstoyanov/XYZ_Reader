@@ -1,4 +1,4 @@
-package com.example.xyzreader.util;
+package com.example.xyzreader.uiutil;
 
 /*
  * Copyright 2015 The Android Open Source Project
