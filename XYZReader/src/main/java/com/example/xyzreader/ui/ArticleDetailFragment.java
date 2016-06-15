@@ -42,12 +42,14 @@ public class ArticleDetailFragment extends Fragment implements
     private static final String TAG = "ArticleDetailFragment";
 
     public static final String ARG_ITEM_ID = "item_id";
-    private static final String ARG_STARTING_ALBUM_IMAGE_POSITION = "arg_starting_thumbnail_image_position";
+    private static final String ARG_THUMBNAIL_IMAGE_POSITION = "arg_starting_thumbnail_image_position";
+    private static final String ARG_STARTING_THUMBNAIL_IMAGE_POSITION = "arg_starting_thumbnail_image_position";
 
 
     private Cursor mCursor;
     private long mItemId;
-    private int mThumbnailPosition;
+    private long mStartingThumbnailPosition;
+    private long mThumbnailPosition;
 
     private boolean mIsTransitioning;
     private long mBackgroundImageFadeMillis;
@@ -77,10 +79,11 @@ public class ArticleDetailFragment extends Fragment implements
         }
     };
 
-    public static ArticleDetailFragment newInstance(long itemId, int startingPosition) {
+    public static ArticleDetailFragment newInstance(long itemId,int position, int startingPosition) {
         Bundle arguments = new Bundle();
         arguments.putLong(ARG_ITEM_ID, itemId);
-        arguments.putInt(ARG_STARTING_ALBUM_IMAGE_POSITION, startingPosition);
+        arguments.putLong(ARG_THUMBNAIL_IMAGE_POSITION, position);
+        arguments.putLong(ARG_STARTING_THUMBNAIL_IMAGE_POSITION, startingPosition);
         ArticleDetailFragment fragment = new ArticleDetailFragment();
         fragment.setArguments(arguments);
         return fragment;
@@ -91,11 +94,12 @@ public class ArticleDetailFragment extends Fragment implements
         super.onCreate(savedInstanceState);
 
         if (getArguments().containsKey(ARG_ITEM_ID) &&
-                getArguments().containsKey(ARG_STARTING_ALBUM_IMAGE_POSITION))
+                getArguments().containsKey(ARG_STARTING_THUMBNAIL_IMAGE_POSITION))
         {
             mItemId = getArguments().getLong(ARG_ITEM_ID);
-            mThumbnailPosition = getArguments().getInt(ARG_STARTING_ALBUM_IMAGE_POSITION);
-            mIsTransitioning = savedInstanceState == null && mItemId == mThumbnailPosition;
+            mThumbnailPosition = getArguments().getLong(ARG_THUMBNAIL_IMAGE_POSITION);
+            mStartingThumbnailPosition = getArguments().getLong(ARG_STARTING_THUMBNAIL_IMAGE_POSITION);
+            mIsTransitioning = savedInstanceState == null && mThumbnailPosition == mStartingThumbnailPosition;
             mBackgroundImageFadeMillis = getResources().getInteger(
                     R.integer.fragment_details_background_image_fade_millis);
 
@@ -185,7 +189,8 @@ public class ArticleDetailFragment extends Fragment implements
         TextView bylineView = (TextView) mRootView.findViewById(R.id.article_byline);
         TextView bodyView = (TextView) mRootView.findViewById(R.id.article_body);
 
-        if (mCursor != null) {
+        if (mCursor != null)
+        {
             mRootView.setAlpha(0);
             mRootView.setVisibility(View.VISIBLE);
             mRootView.animate().alpha(1);
@@ -206,7 +211,7 @@ public class ArticleDetailFragment extends Fragment implements
 
 
 
-            mPhotoView.setTransitionName(String.valueOf(mCursor.getPosition()));
+            mPhotoView.setTransitionName(mCursor.getString(ArticleLoader.Query.TITLE));
 
             //Picasso.with(getActivity()).load(mCursor.getString(ArticleLoader.Query.PHOTO_URL))
              //       .into(mPhotoView);
@@ -218,9 +223,6 @@ public class ArticleDetailFragment extends Fragment implements
 
             if (mIsTransitioning) {
                 albumImageRequest.noFade();
-
-
-
             }
 
             albumImageRequest.into(mPhotoView, mImageCallback);
@@ -265,11 +267,12 @@ public class ArticleDetailFragment extends Fragment implements
     }
 
     private void startPostponedEnterTransition() {
-        if (mThumbnailPosition == mItemId) {
+        if (mThumbnailPosition == mStartingThumbnailPosition) {
             mPhotoView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
                 @Override
                 public boolean onPreDraw() {
                     mPhotoView.getViewTreeObserver().removeOnPreDrawListener(this);
+                    // TODO: Find a solution for the occasional crash when getActivity is called while swiping
                     getActivity().startPostponedEnterTransition();
                     return true;
                 }

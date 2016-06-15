@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 
@@ -45,6 +46,7 @@ public class ArticleListActivity extends AppCompatActivity implements
 
     public static final String EXTRA_STARTING_ALBUM_POSITION = "extra_starting_item_position";
     static final String EXTRA_CURRENT_ALBUM_POSITION = "extra_current_item_position";
+    static final String EXTRA_CURRENT_TRANSITION_NAME = "extra_current_transition_name";
 
 
     @Override
@@ -55,6 +57,8 @@ public class ArticleListActivity extends AppCompatActivity implements
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mToolbar.setLogo(R.drawable.logo);
         mActivity = this;
+
+        setExitSharedElementCallback(mCallback);
 
 
         //final View toolbarContainerView = findViewById(R.id.toolbar_container);
@@ -87,6 +91,17 @@ public class ArticleListActivity extends AppCompatActivity implements
         {
             XYZReaderSyncAdapter.syncImmediately(this);
         }
+
+        if( getIntent().getExtras() != null)
+        {
+            int currentPosition = getIntent().getExtras().getInt(EXTRA_CURRENT_ALBUM_POSITION);
+            Log.d("main", "intent in onCreate:" + currentPosition);
+            if (currentPosition != mRecyclerView.NO_POSITION)
+            {
+                mRecyclerView.smoothScrollToPosition(currentPosition);
+            }
+        }
+
     }
 
     private void refresh() {
@@ -97,6 +112,8 @@ public class ArticleListActivity extends AppCompatActivity implements
         @Override
         public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
             if (mTmpReenterState != null) {
+
+                String transitionName = mTmpReenterState.getString(EXTRA_CURRENT_TRANSITION_NAME);
                 int startingPosition = mTmpReenterState.getInt(EXTRA_STARTING_ALBUM_POSITION);
                 int currentPosition = mTmpReenterState.getInt(EXTRA_CURRENT_ALBUM_POSITION);
                 if (startingPosition != currentPosition) {
@@ -104,15 +121,13 @@ public class ArticleListActivity extends AppCompatActivity implements
                     // different page in the DetailsActivity. We must update the shared element
                     // so that the correct one falls into place.
 
-
-                    String newTransitionName = String.valueOf(currentPosition);
-                    View newSharedElement = mRecyclerView.findViewWithTag(newTransitionName);
+                    View newSharedElement = mRecyclerView.findViewWithTag(transitionName);
                     if (newSharedElement != null)
                     {
                         names.clear();
-                        names.add(newTransitionName);
+                        names.add(transitionName);
                         sharedElements.clear();
-                        sharedElements.put(newTransitionName, newSharedElement);
+                        sharedElements.put(transitionName, newSharedElement);
                     }
                 }
 
@@ -139,17 +154,17 @@ public class ArticleListActivity extends AppCompatActivity implements
         mTmpReenterState = new Bundle(data.getExtras());
         int startingPosition = mTmpReenterState.getInt(EXTRA_STARTING_ALBUM_POSITION);
         int currentPosition = mTmpReenterState.getInt(EXTRA_CURRENT_ALBUM_POSITION);
-        if (startingPosition != currentPosition) {
-            mRecyclerView.scrollToPosition(currentPosition);
+        if (startingPosition != currentPosition)
+        {
+            mRecyclerView.smoothScrollToPosition(currentPosition);
         }
-        postponeEnterTransition();
+        supportPostponeEnterTransition();
         mRecyclerView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
             public boolean onPreDraw() {
                 mRecyclerView.getViewTreeObserver().removeOnPreDrawListener(this);
-                // TODO: figure out why it is necessary to request layout here in order to get a smooth transition.
                 mRecyclerView.requestLayout();
-                startPostponedEnterTransition();
+                supportStartPostponedEnterTransition();
                 return true;
             }
         });
@@ -173,6 +188,22 @@ public class ArticleListActivity extends AppCompatActivity implements
     protected void onResume() {
         super.onResume();
         mIsDetailsActivityStarted = false;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(data.getExtras()!=null)
+        {
+            mTmpReenterState = new Bundle(data.getExtras());
+            int startingPosition = mTmpReenterState.getInt(EXTRA_STARTING_ALBUM_POSITION);
+            int currentPosition = mTmpReenterState.getInt(EXTRA_CURRENT_ALBUM_POSITION);
+            if (startingPosition != currentPosition)
+            {
+                mRecyclerView.smoothScrollToPosition(currentPosition);
+            }
+
+        }
     }
 
     private boolean mIsRefreshing = false;

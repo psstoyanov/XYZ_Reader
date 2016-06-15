@@ -24,6 +24,8 @@ import com.squareup.picasso.Picasso;
 public class RecyclerListArticleAdapter extends RecyclerView.Adapter
         <RecyclerListArticleAdapter.ArticlesViewHolder>
 {
+    private static final String LOG_TAG = RecyclerListArticleAdapter.class.getSimpleName();
+
 
     private Cursor mCursor;
     private int mActivePosition;
@@ -54,14 +56,14 @@ public class RecyclerListArticleAdapter extends RecyclerView.Adapter
             //        ItemsContract.Items.buildItemUri(getId(getAdapterPosition()))));
 
 
-            // TODO: is there a way to prevent user from double clicking and starting activity twice?
             Intent intent = (new Intent(Intent.ACTION_VIEW,
                     ItemsContract.Items.buildItemUri(getId(getAdapterPosition()))));
-            intent.putExtra(ArticleListActivity.EXTRA_STARTING_ALBUM_POSITION, ItemsContract.Items.buildItemUri(getId(getAdapterPosition())));
+            intent.putExtra(ArticleListActivity.EXTRA_STARTING_ALBUM_POSITION, getAdapterPosition());
 
-            if (!ArticleListActivity.GetmIsDetailsActivityStarted()) {
+            if (!ArticleListActivity.GetmIsDetailsActivityStarted())
+            {
                 ArticleListActivity.SetmIsDetailsActivityStarted(true);
-                mContext.startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(mContext,
+                mContext.startActivityForResult(intent, 1, ActivityOptions.makeSceneTransitionAnimation(mContext,
                         thumbnailView, thumbnailView.getTransitionName()).toBundle());
             }
 
@@ -100,7 +102,8 @@ public class RecyclerListArticleAdapter extends RecyclerView.Adapter
     }
 
     @Override
-    public void onBindViewHolder(ArticlesViewHolder holder, int position) {
+    public void onBindViewHolder(final ArticlesViewHolder holder, int position)
+    {
         mCursor.moveToPosition(position);
         holder.titleView.setText(mCursor.getString(ArticleLoader.Query.TITLE));
         holder.subtitleView.setText(
@@ -111,17 +114,17 @@ public class RecyclerListArticleAdapter extends RecyclerView.Adapter
                         + " by "
                         + mCursor.getString(ArticleLoader.Query.AUTHOR));
 
+        holder.thumbnailView.setTransitionName(mCursor.getString(ArticleLoader.Query.TITLE));
+        holder.thumbnailView.setTag(mCursor.getString(ArticleLoader.Query.TITLE));
+
         Picasso mPicasso = Picasso.with(mContext);
         mPicasso.with(mContext).cancelRequest(holder.thumbnailView);
         mPicasso.with(mContext).
                 load(mCursor.getString(ArticleLoader.Query.THUMB_URL))
                 .placeholder(R.drawable.photo_background_protection)
                 .into(holder.thumbnailView);
-        holder.thumbnailView.setTransitionName(String.valueOf(mCursor.getPosition()));
-        holder.thumbnailView.setTag(String.valueOf(mCursor.getPosition()));
 
         holder.thumbnailView.setAspectRatio(mCursor.getFloat(ArticleLoader.Query.ASPECT_RATIO));
-
 
     }
 
