@@ -32,6 +32,24 @@ import java.util.Map;
  * touched, lead to a {@link ArticleDetailActivity} representing item details. On tablets, the
  * activity presents a grid of items as cards.
  */
+
+
+/** For the transitions, the examples inside the SunshineApp and the following gitrepo were used:
+ * https://github.com/alexjlockwood/activity-transitions
+ * The latter is more specific to the SharedElementTransition as it gave me a good understanding how
+ * to deal with the passes between the RecyclerView<->DetailActivity<->ViewPager<->DetailFragment
+ *
+ * A number of iterations were made on the toolbar for the detail activity. At the end, the preferred
+ * choice was to utilize the toolbar with NavUtils inside the DetailActivity.
+ *
+ * The return SharedElementTransition is removed as to prevent the animation from breaking,
+ * when the returning position from the ViewPager doesn't match the currently loaded elements
+ * inside the RecyclerView and to avoid postponing the animation until Picasso loads the thumbnails.
+ * The preferred choice was to leave the return animation only for the times when the user returns from
+ * the same article that he selected from the RecyclerView.
+ * With the current setup, another option would be to have the thumbnail present in the DetailFragment.
+ * */
+
 public class ArticleListActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
