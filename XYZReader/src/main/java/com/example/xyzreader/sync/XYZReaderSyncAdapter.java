@@ -19,7 +19,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.text.format.Time;
-import android.util.Log;
 
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ItemsContract;
@@ -52,14 +51,14 @@ public class XYZReaderSyncAdapter extends AbstractThreadedSyncAdapter
 
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-        Log.d(LOG_TAG, "onPerformSync Called.");
+        //Log.d(LOG_TAG, "onPerformSync Called.");
 
         Time time = new Time();
 
         ConnectivityManager cm = (ConnectivityManager) getContext().getSystemService(CONNECTIVITY_SERVICE);
         NetworkInfo ni = cm.getActiveNetworkInfo();
         if (ni == null || !ni.isConnected()) {
-            Log.w(LOG_TAG, "Not online, not refreshing.");
+            //Log.w(LOG_TAG, "Not online, not refreshing.");
             return;
         }
 
@@ -98,7 +97,7 @@ public class XYZReaderSyncAdapter extends AbstractThreadedSyncAdapter
             getContext().getContentResolver().applyBatch(ItemsContract.CONTENT_AUTHORITY, cpo);
 
         } catch (JSONException | RemoteException | OperationApplicationException e) {
-            Log.e(LOG_TAG, "Error updating content.", e);
+            //Log.e(LOG_TAG, "Error updating content.", e);
         }
 
         getContext().sendStickyBroadcast(

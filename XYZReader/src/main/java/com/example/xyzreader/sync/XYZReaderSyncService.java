@@ -3,7 +3,6 @@ package com.example.xyzreader.sync;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import android.util.Log;
 
 public class XYZReaderSyncService extends Service {
     public final String LOG_TAG = XYZReaderSyncService.class.getSimpleName();
@@ -12,7 +11,7 @@ public class XYZReaderSyncService extends Service {
 
     @Override
     public void onCreate() {
-        Log.d(LOG_TAG, "onCreate - SunshineSyncService");
+        //Log.d(LOG_TAG, "onCreate - SunshineSyncService");
         synchronized (sSyncAdapterLock) {
             if (sXYZReaderSyncAdapter == null) {
                 sXYZReaderSyncAdapter = new XYZReaderSyncAdapter(getApplicationContext(), true);
