@@ -116,34 +116,39 @@ public class ArticleDetailFragment extends Fragment implements
     {
         super.onActivityCreated(savedInstanceState);
 
-        // In support library r8, calling initLoader for a fragment in a FragmentPagerAdapter in
-        // the fragment's onCreate may cause the same LoaderManager to be dealt to multiple
-        // fragments because their mIndex is -1 (haven't been added to the activity yet). Thus,
-        // we do this in onActivityCreated.
+        /*  In support library r8, calling initLoader for a fragment in a FragmentPagerAdapter in
+            the fragment's onCreate may cause the same LoaderManager to be dealt to multiple
+            fragments because their mIndex is -1 (haven't been added to the activity yet). Thus,
+            we do this in onActivityCreated.
+        */
         getLoaderManager().initLoader(0, null, this);
         setHasOptionsMenu(true);
 
-        //mToolbar = (Toolbar) mRootView.findViewById(R.id.toolbar);
 
 
-        // Add the AppCompatActivity code for ActionBar.
-        // More specifically- up navigation.
-        // The fragment will rely on the activity to use the AppBar functions.
-        // However there is no Toolbar on the Activity xml, thus we pass the Activity
-        // functions to the fragment with ((AppCompatActivity) getActivity()) on onCreateView
-        /*((AppCompatActivity) getActivity()).setSupportActionBar(mToolbar);
-        if(((AppCompatActivity) getActivity()).getSupportActionBar() != null)
-        {
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(true);
-        }*/
+         /* Add the AppCompatActivity code for ActionBar.
+            More specifically- up navigation.
+            The fragment will rely on the activity to use the AppBar functions.
+            However there is no Toolbar on the Activity xml, thus we pass the Activity
+            functions to the fragment with ((AppCompatActivity) getActivity()) on onCreateView
+          */
 
-        // The previous solution works, however only when at least one fragment has been switched
-        // in the Viewpager. To use the ColapsingToolbar and be able to swipe left<->right
-        // as well as up<-> down directly directly, this solution seems to work best.
-        // If the toolbar is added in the same layout as the ViewPager, then the
-        // expanded toolbar can't be swiped left<->right.
-        //mToolbar.setNavigationIcon(ContextCompat.getDrawable(getActivity(),R.drawable.ic_arrow_back));
+          /*
+          ((AppCompatActivity) getActivity()).setSupportActionBar(mToolbar);
+             if(((AppCompatActivity) getActivity()).getSupportActionBar() != null)
+             {
+                ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(true);
+             }
+           */
+
+         /*The previous solution works, however only when at least one fragment has been switched
+           in the Viewpager. To use the ColapsingToolbar and be able to swipe left<->right
+           as well as up<-> down directly directly, this solution seems to work best.
+           If the toolbar is added in the same layout as the ViewPager, then the
+           expanded toolbar can't be swiped left<->right.
+           mToolbar.setNavigationIcon(ContextCompat.getDrawable(getActivity(),R.drawable.ic_arrow_back));
+           */
 
 
     }

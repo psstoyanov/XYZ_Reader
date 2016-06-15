@@ -15,7 +15,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 
@@ -92,15 +91,6 @@ public class ArticleListActivity extends AppCompatActivity implements
             XYZReaderSyncAdapter.syncImmediately(this);
         }
 
-        if( getIntent().getExtras() != null)
-        {
-            int currentPosition = getIntent().getExtras().getInt(EXTRA_CURRENT_ALBUM_POSITION);
-            Log.d("main", "intent in onCreate:" + currentPosition);
-            if (currentPosition != mRecyclerView.NO_POSITION)
-            {
-                mRecyclerView.smoothScrollToPosition(currentPosition);
-            }
-        }
 
     }
 
